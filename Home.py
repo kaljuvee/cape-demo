@@ -6,11 +6,12 @@ Developed by Lohusalu Capital Management
 
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
-from datetime import datetime
+import sqlite3
+import json
 import uuid
 import io
+import plotly.graph_objects as go
+from datetime import datetime
 import os
 
 # Load environment variables (optional)
@@ -385,6 +386,93 @@ def main():
                     if stock_info.get('website'):
                         st.subheader("🌐 Company Website")
                         st.link_button("Visit Website", stock_info['website'])
+                    
+                    # Charts tab
+                    st.subheader("📈 Price Charts")
+                    
+                    # Add charting functionality
+                    try:
+                        import yfinance as yf
+                        import plotly.graph_objects as go
+                        
+                        # Time period selection
+                        period_options = {
+                            "1 Month": "1mo",
+                            "3 Months": "3mo", 
+                            "6 Months": "6mo",
+                            "1 Year": "1y",
+                            "2 Years": "2y"
+                        }
+                        
+                        selected_period = st.selectbox("Select time period:", list(period_options.keys()), index=2)
+                        
+                        with st.spinner("Loading price charts..."):
+                            # Get historical data using yfinance
+                            stock = yf.Ticker(ticker)
+                            hist_data = stock.history(period=period_options[selected_period])
+                            
+                            if not hist_data.empty:
+                                # Price chart
+                                fig = go.Figure()
+                                
+                                fig.add_trace(go.Scatter(
+                                    x=hist_data.index,
+                                    y=hist_data['Close'],
+                                    mode='lines',
+                                    name='Close Price',
+                                    line=dict(color='#1f77b4', width=2)
+                                ))
+                                
+                                fig.update_layout(
+                                    title=f"{ticker} Price History ({selected_period})",
+                                    xaxis_title="Date",
+                                    yaxis_title="Price ($)",
+                                    hovermode='x unified',
+                                    height=400
+                                )
+                                
+                                st.plotly_chart(fig, use_container_width=True)
+                                
+                                # Volume chart
+                                fig_vol = go.Figure()
+                                
+                                fig_vol.add_trace(go.Bar(
+                                    x=hist_data.index,
+                                    y=hist_data['Volume'],
+                                    name='Volume',
+                                    marker_color='lightblue'
+                                ))
+                                
+                                fig_vol.update_layout(
+                                    title=f"{ticker} Volume ({selected_period})",
+                                    xaxis_title="Date",
+                                    yaxis_title="Volume",
+                                    hovermode='x unified',
+                                    height=300
+                                )
+                                
+                                st.plotly_chart(fig_vol, use_container_width=True)
+                                
+                                # Price statistics
+                                st.subheader("📊 Price Statistics")
+                                
+                                price_stats = {
+                                    "Current Price": f"${hist_data['Close'].iloc[-1]:.2f}",
+                                    "Period High": f"${hist_data['High'].max():.2f}",
+                                    "Period Low": f"${hist_data['Low'].min():.2f}",
+                                    "Average Volume": f"{hist_data['Volume'].mean():,.0f}",
+                                    "Price Change": f"{((hist_data['Close'].iloc[-1] / hist_data['Close'].iloc[0]) - 1) * 100:.1f}%"
+                                }
+                                
+                                stats_df = pd.DataFrame(list(price_stats.items()), columns=["Metric", "Value"])
+                                st.dataframe(stats_df, hide_index=True, use_container_width=True)
+                                
+                            else:
+                                st.warning(f"No historical price data available for {ticker}")
+                                
+                    except Exception as e:
+                        st.error(f"Error loading charts: {str(e)}")
+                        st.info("Charts require yfinance data. Try using Yahoo Finance as data source.")
                     
                     # Download analysis
                     st.subheader("📥 Download Analysis")

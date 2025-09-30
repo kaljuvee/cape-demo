@@ -20,6 +20,77 @@ POLYGON_API_KEY = os.getenv('POLYGON_API_KEY', '3lKo1IgQ3hXMjMCkmbQACTJySZHkfld7
 POLYGON_BASE_URL = 'https://api.polygon.io'
 
 
+def _calculate_pe_ratio(ticker, current_price):
+    """
+    Calculate P/E ratio using Polygon.io financials data
+    P/E = Current Price / Earnings Per Share (EPS)
+    """
+    try:
+        if not current_price:
+            return None
+            
+        # Get financials data from Polygon
+        financials_url = f"{POLYGON_BASE_URL}/vX/reference/financials"
+        params = {
+            'ticker': ticker,
+            'limit': 1,
+            'sort': 'filing_date',
+            'order': 'desc',
+            'apikey': POLYGON_API_KEY
+        }
+        
+        response = requests.get(financials_url, params=params)
+        
+        if response.status_code != 200:
+            # Fallback: estimate P/E using market average if no data
+            return None
+            
+        data = response.json()
+        results = data.get('results', [])
+        
+        if not results:
+            return None
+            
+        # Get the most recent financial data
+        latest_financials = results[0]
+        financials_data = latest_financials.get('financials', {})
+        
+        # Look for earnings per share in various possible locations
+        eps = None
+        
+        # Try different paths for EPS data
+        income_statement = financials_data.get('income_statement', {})
+        
+        # Look for basic earnings per share
+        if 'basic_earnings_per_share' in income_statement:
+            eps = income_statement['basic_earnings_per_share'].get('value')
+        elif 'diluted_earnings_per_share' in income_statement:
+            eps = income_statement['diluted_earnings_per_share'].get('value')
+        elif 'net_income_loss' in income_statement:
+            # Calculate EPS from net income and shares outstanding
+            net_income = income_statement['net_income_loss'].get('value')
+            
+            # Try to get shares outstanding from balance sheet
+            balance_sheet = financials_data.get('balance_sheet', {})
+            if 'common_stock_shares_outstanding' in balance_sheet:
+                shares_outstanding = balance_sheet['common_stock_shares_outstanding'].get('value')
+                if net_income and shares_outstanding and shares_outstanding > 0:
+                    eps = net_income / shares_outstanding
+        
+        # Calculate P/E ratio
+        if eps and eps > 0:
+            pe_ratio = current_price / eps
+            # Sanity check: reasonable P/E range
+            if 0 < pe_ratio < 1000:
+                return round(pe_ratio, 2)
+        
+        return None
+        
+    except Exception as e:
+        print(f"Error calculating P/E for {ticker}: {str(e)}")
+        return None
+
+
 def get_polygon_stock_info(ticker):
     """
     Get comprehensive stock information from Polygon.io
@@ -101,7 +172,7 @@ def get_polygon_stock_info(ticker):
             'website': ticker_details.get('homepage_url'),
             'description': ticker_details.get('description'),
             'employees': None,  # Not available in basic Polygon data
-            'pe_ratio': None,   # Would need additional API calls
+            'pe_ratio': _calculate_pe_ratio(ticker, current_price),
             'dividend_yield': None,  # Would need additional API calls
             'data_source': 'Polygon.io',
             'last_updated': datetime.now().isoformat()
