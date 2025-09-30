@@ -160,24 +160,208 @@ def search_ticker(query):
     Returns: List of matching tickers with company names
     """
     try:
-        tickers = get_sp500_tickers()
-        matches = []
+        # Enhanced list of major companies for better search results
+        major_companies = {
+            'AAPL': 'Apple Inc.',
+            'MSFT': 'Microsoft Corporation',
+            'GOOGL': 'Alphabet Inc.',
+            'GOOG': 'Alphabet Inc. Class A',
+            'AMZN': 'Amazon.com Inc.',
+            'TSLA': 'Tesla Inc.',
+            'META': 'Meta Platforms Inc.',
+            'NVDA': 'NVIDIA Corporation',
+            'JPM': 'JPMorgan Chase & Co.',
+            'JNJ': 'Johnson & Johnson',
+            'V': 'Visa Inc.',
+            'PG': 'Procter & Gamble Co.',
+            'UNH': 'UnitedHealth Group Inc.',
+            'HD': 'Home Depot Inc.',
+            'MA': 'Mastercard Inc.',
+            'BAC': 'Bank of America Corp.',
+            'XOM': 'Exxon Mobil Corporation',
+            'DIS': 'Walt Disney Co.',
+            'ADBE': 'Adobe Inc.',
+            'CRM': 'Salesforce Inc.',
+            'NFLX': 'Netflix Inc.',
+            'ETSY': 'Etsy Inc.',
+            'SHOP': 'Shopify Inc.',
+            'SQ': 'Block Inc.',
+            'PYPL': 'PayPal Holdings Inc.',
+            'ROKU': 'Roku Inc.',
+            'ZM': 'Zoom Video Communications Inc.',
+            'UBER': 'Uber Technologies Inc.',
+            'LYFT': 'Lyft Inc.',
+            'ABNB': 'Airbnb Inc.',
+            'COIN': 'Coinbase Global Inc.',
+            'RBLX': 'Roblox Corporation',
+            'SNOW': 'Snowflake Inc.',
+            'PLTR': 'Palantir Technologies Inc.',
+            'CRWD': 'CrowdStrike Holdings Inc.',
+            'ZS': 'Zscaler Inc.',
+            'OKTA': 'Okta Inc.',
+            'DDOG': 'Datadog Inc.',
+            'NET': 'Cloudflare Inc.',
+            'TWLO': 'Twilio Inc.',
+            'DOCU': 'DocuSign Inc.',
+            'SPOT': 'Spotify Technology S.A.',
+            'PINS': 'Pinterest Inc.',
+            'SNAP': 'Snap Inc.',
+            'INTC': 'Intel Corporation',
+            'AMD': 'Advanced Micro Devices Inc.',
+            'ORCL': 'Oracle Corporation',
+            'IBM': 'International Business Machines Corp.',
+            'CSCO': 'Cisco Systems Inc.',
+            'QCOM': 'QUALCOMM Inc.',
+            'TXN': 'Texas Instruments Inc.',
+            'AVGO': 'Broadcom Inc.',
+            'NOW': 'ServiceNow Inc.',
+            'INTU': 'Intuit Inc.',
+            'WDAY': 'Workday Inc.',
+            'TEAM': 'Atlassian Corporation',
+            'SPLK': 'Splunk Inc.',
+            'VEEV': 'Veeva Systems Inc.',
+            'PANW': 'Palo Alto Networks Inc.',
+            'FTNT': 'Fortinet Inc.',
+            'COST': 'Costco Wholesale Corporation',
+            'WMT': 'Walmart Inc.',
+            'TGT': 'Target Corporation',
+            'LOW': 'Lowe\'s Companies Inc.',
+            'BBY': 'Best Buy Co. Inc.',
+            'SBUX': 'Starbucks Corporation',
+            'MCD': 'McDonald\'s Corporation',
+            'KO': 'Coca-Cola Company',
+            'PEP': 'PepsiCo Inc.',
+            'NKE': 'Nike Inc.',
+            'LULU': 'Lululemon Athletica Inc.',
+            'TJX': 'TJX Companies Inc.',
+            'ROST': 'Ross Stores Inc.',
+            'FDX': 'FedEx Corporation',
+            'UPS': 'United Parcel Service Inc.',
+            'DAL': 'Delta Air Lines Inc.',
+            'AAL': 'American Airlines Group Inc.',
+            'UAL': 'United Airlines Holdings Inc.',
+            'LUV': 'Southwest Airlines Co.',
+            'CVNA': 'Carvana Co.',
+            'KMX': 'CarMax Inc.',
+            'PFE': 'Pfizer Inc.',
+            'MRK': 'Merck & Co. Inc.',
+            'ABBV': 'AbbVie Inc.',
+            'BMY': 'Bristol-Myers Squibb Company',
+            'LLY': 'Eli Lilly and Company',
+            'GILD': 'Gilead Sciences Inc.',
+            'AMGN': 'Amgen Inc.',
+            'BIIB': 'Biogen Inc.',
+            'REGN': 'Regeneron Pharmaceuticals Inc.',
+            'VRTX': 'Vertex Pharmaceuticals Inc.',
+            'ZTS': 'Zoetis Inc.',
+            'TMO': 'Thermo Fisher Scientific Inc.',
+            'DHR': 'Danaher Corporation',
+            'ABT': 'Abbott Laboratories',
+            'SYK': 'Stryker Corporation',
+            'BSX': 'Boston Scientific Corporation',
+            'MDT': 'Medtronic plc',
+            'ISRG': 'Intuitive Surgical Inc.',
+            'DXCM': 'DexCom Inc.',
+            'TDOC': 'Teladoc Health Inc.',
+            'PTON': 'Peloton Interactive Inc.',
+            'TSN': 'Tyson Foods Inc.',
+            'GIS': 'General Mills Inc.',
+            'KHC': 'Kraft Heinz Company',
+            'MDLZ': 'Mondelez International Inc.',
+            'HSY': 'Hershey Company',
+            'ADM': 'Archer-Daniels-Midland Company',
+            'CF': 'CF Industries Holdings Inc.',
+            'MOS': 'Mosaic Company',
+            'DOW': 'Dow Inc.',
+            'DD': 'DuPont de Nemours Inc.',
+            'APD': 'Air Products and Chemicals Inc.',
+            'LIN': 'Linde plc',
+            'ECL': 'Ecolab Inc.',
+            'SHW': 'Sherwin-Williams Company',
+            'PPG': 'PPG Industries Inc.',
+            'AMAT': 'Applied Materials Inc.',
+            'LRCX': 'Lam Research Corporation',
+            'KLAC': 'KLA Corporation',
+            'MU': 'Micron Technology Inc.',
+            'WDC': 'Western Digital Corporation',
+            'NXPI': 'NXP Semiconductors N.V.',
+            'ADI': 'Analog Devices Inc.',
+            'MCHP': 'Microchip Technology Inc.',
+            'SWKS': 'Skyworks Solutions Inc.',
+            'QRVO': 'Qorvo Inc.',
+            'MRVL': 'Marvell Technology Inc.',
+            'ILMN': 'Illumina Inc.',
+            'MRNA': 'Moderna Inc.',
+            'BNTX': 'BioNTech SE',
+            'CRSP': 'CRISPR Therapeutics AG',
+            'EDIT': 'Editas Medicine Inc.',
+            'NTLA': 'Intellia Therapeutics Inc.',
+            'MDB': 'MongoDB Inc.',
+            'FSLY': 'Fastly Inc.',
+            'AKAM': 'Akamai Technologies Inc.',
+            'GDDY': 'GoDaddy Inc.',
+            'WIX': 'Wix.com Ltd.',
+            'MELI': 'MercadoLibre Inc.',
+            'BABA': 'Alibaba Group Holding Limited',
+            'JD': 'JD.com Inc.',
+            'BIDU': 'Baidu Inc.',
+            'GRUB': 'Grubhub Inc.',
+            'DASH': 'DoorDash Inc.',
+            'SE': 'Sea Limited',
+            'FAIR': 'Fair Isaac Corporation',
+            'EXPD': 'Expeditors International of Washington Inc.',
+            'QTWO': 'Q2 Holdings Inc.',
+            'PAYC': 'Paycom Software Inc.',
+            'CTXS': 'Citrix Systems Inc.',
+            'VMW': 'VMware Inc.',
+            'RNG': 'RingCentral Inc.',
+            'ZEN': 'Zendesk Inc.',
+            'HUBS': 'HubSpot Inc.'
+        }
         
-        # Simple search - in a real implementation, you'd want more sophisticated matching
-        for ticker in tickers:
-            if query.upper() in ticker.upper():
-                try:
-                    stock = yf.Ticker(ticker)
-                    info = stock.info
-                    company_name = info.get('longName', ticker)
-                    matches.append({'ticker': ticker, 'name': company_name})
-                except:
-                    matches.append({'ticker': ticker, 'name': ticker})
+        query_lower = query.lower().strip()
+        results = []
         
-        return matches[:10]  # Return top 10 matches
+        # Exact ticker match first
+        for ticker, name in major_companies.items():
+            if query_lower == ticker.lower():
+                results.append({
+                    'ticker': ticker,
+                    'name': name
+                })
+        
+        # Then partial ticker matches
+        for ticker, name in major_companies.items():
+            if (query_lower in ticker.lower() and 
+                query_lower != ticker.lower() and
+                not any(r['ticker'] == ticker for r in results)):
+                results.append({
+                    'ticker': ticker,
+                    'name': name
+                })
+        
+        # Then company name matches
+        for ticker, name in major_companies.items():
+            if (query_lower in name.lower() and
+                not any(r['ticker'] == ticker for r in results)):
+                results.append({
+                    'ticker': ticker,
+                    'name': name
+                })
+        
+        return results[:10]  # Limit to top 10 results
+        
     except Exception as e:
         print(f"Error searching tickers: {e}")
-        return []
+        # Return a few common results as fallback
+        return [
+            {'ticker': 'AAPL', 'name': 'Apple Inc.'},
+            {'ticker': 'MSFT', 'name': 'Microsoft Corporation'},
+            {'ticker': 'GOOGL', 'name': 'Alphabet Inc.'},
+            {'ticker': 'AMZN', 'name': 'Amazon.com Inc.'},
+            {'ticker': 'TSLA', 'name': 'Tesla Inc.'},
+            {'ticker': 'ETSY', 'name': 'Etsy Inc.'}
+        ]
 
 def get_stock_info(ticker):
     """

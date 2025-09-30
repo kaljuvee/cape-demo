@@ -75,8 +75,8 @@ with st.sidebar:
     if st.button("📊 Calculate CAPE"):
         st.session_state.show_cape_calc = True
 
-# Main content area
-tab1, tab2, tab3, tab4 = st.tabs(["📊 CAPE Analysis", "🔍 Ticker Search", "📈 Individual Stock", "📋 Session History"])
+# Main content area - Merged tabs
+tab1, tab2, tab3 = st.tabs(["📊 CAPE Analysis", "🔍 Stock Analysis", "📋 Session History"])
 
 with tab1:
     st.header("CAPE Analysis")
@@ -205,12 +205,25 @@ with tab1:
         st.dataframe(st.session_state.cape_data.tail(10), use_container_width=True)
 
 with tab2:
-    st.header("🔍 Ticker Search")
+    st.header("🔍 Stock Analysis")
     
-    # Search interface
-    search_query = st.text_input("Search for stocks (ticker or company name):", placeholder="e.g., AAPL, Apple, Microsoft")
+    # Combined search and analysis interface
+    st.subheader("Search for Stocks")
     
-    if st.button("Search") and search_query:
+    col1, col2 = st.columns([4, 1])
+    
+    with col1:
+        search_query = st.text_input(
+            "Search by ticker or company name:",
+            placeholder="e.g., AAPL, Apple, Microsoft, ETSY, Tesla"
+        )
+    
+    with col2:
+        st.write("")  # Spacing
+        search_button = st.button("🔍 Search", type="secondary")
+    
+    # Search results
+    if search_button and search_query:
         with st.spinner("Searching..."):
             try:
                 results = search_ticker(search_query)
@@ -221,9 +234,9 @@ with tab2:
                     
                     st.success(f"Found {len(results)} results:")
                     
-                    # Display results
+                    # Display results with analyze buttons
                     for result in results:
-                        col1, col2, col3 = st.columns([2, 4, 2])
+                        col1, col2, col3 = st.columns([2, 5, 2])
                         
                         with col1:
                             st.code(result['ticker'])
@@ -232,17 +245,138 @@ with tab2:
                             st.write(result['name'])
                         
                         with col3:
-                            if st.button(f"Analyze", key=f"analyze_{result['ticker']}"):
-                                st.session_state.selected_ticker = result['ticker']
-                                st.session_state.selected_name = result['name']
-                                st.switch_page("pages/stock_analysis.py")
+                            if st.button("📊 Analyze", key=f"search_analyze_{result['ticker']}"):
+                                st.session_state.analyze_ticker = result['ticker']
+                                st.rerun()
                 else:
                     st.warning("No results found. Try a different search term.")
                     
             except Exception as e:
                 st.error(f"Search error: {str(e)}")
     
+    # Direct ticker analysis
+    st.markdown("---")
+    st.subheader("📈 Direct Stock Analysis")
+    
+    # Check if ticker was selected from search
+    if 'analyze_ticker' in st.session_state:
+        ticker_input = st.session_state.analyze_ticker
+        del st.session_state.analyze_ticker
+    else:
+        ticker_input = ""
+    
+    col1, col2 = st.columns([4, 1])
+    
+    with col1:
+        ticker = st.text_input(
+            "Enter ticker symbol directly:",
+            value=ticker_input,
+            placeholder="e.g., AAPL, MSFT, GOOGL, ETSY"
+        ).upper()
+    
+    with col2:
+        st.write("")  # Spacing
+        analyze_button = st.button("📊 Analyze Stock", type="primary")
+    
+    if analyze_button and ticker:
+        with st.spinner(f"Analyzing {ticker}..."):
+            try:
+                stock_info = get_stock_info(ticker)
+                
+                if 'error' not in stock_info:
+                    st.success(f"Analysis for {stock_info['name']} ({stock_info['ticker']})")
+                    
+                    # Key metrics in a nice layout
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    with col1:
+                        if stock_info['current_price']:
+                            st.metric("Current Price", f"${stock_info['current_price']:.2f}")
+                        else:
+                            st.metric("Current Price", "N/A")
+                    
+                    with col2:
+                        if stock_info['pe_ratio']:
+                            st.metric("P/E Ratio", f"{stock_info['pe_ratio']:.1f}")
+                        else:
+                            st.metric("P/E Ratio", "N/A")
+                    
+                    with col3:
+                        if stock_info['market_cap']:
+                            # Format market cap nicely
+                            market_cap = stock_info['market_cap']
+                            if market_cap > 1e12:
+                                cap_display = f"${market_cap/1e12:.2f}T"
+                            elif market_cap > 1e9:
+                                cap_display = f"${market_cap/1e9:.2f}B"
+                            elif market_cap > 1e6:
+                                cap_display = f"${market_cap/1e6:.2f}M"
+                            else:
+                                cap_display = f"${market_cap:,.0f}"
+                            st.metric("Market Cap", cap_display)
+                        else:
+                            st.metric("Market Cap", "N/A")
+                    
+                    with col4:
+                        if stock_info['dividend_yield']:
+                            st.metric("Dividend Yield", f"{stock_info['dividend_yield']:.2%}")
+                        else:
+                            st.metric("Dividend Yield", "N/A")
+                    
+                    # Company details
+                    st.subheader("Company Information")
+                    info_data = []
+                    
+                    if stock_info.get('sector'):
+                        info_data.append({"Field": "Sector", "Value": stock_info['sector']})
+                    if stock_info.get('industry'):
+                        info_data.append({"Field": "Industry", "Value": stock_info['industry']})
+                    if stock_info.get('country'):
+                        info_data.append({"Field": "Country", "Value": stock_info['country']})
+                    if stock_info.get('employees'):
+                        info_data.append({"Field": "Employees", "Value": f"{stock_info['employees']:,}"})
+                    
+                    if info_data:
+                        info_df = pd.DataFrame(info_data)
+                        st.dataframe(info_df, hide_index=True, use_container_width=True)
+                    
+                    # Business summary
+                    if stock_info.get('business_summary'):
+                        st.subheader("Business Summary")
+                        st.write(stock_info['business_summary'])
+                    
+                    # Download analysis
+                    st.subheader("📥 Download Analysis")
+                    
+                    # Create CSV data
+                    csv_data = f"""Field,Value
+Ticker,{stock_info['ticker']}
+Company Name,{stock_info['name']}
+Current Price,{stock_info.get('current_price', 'N/A')}
+P/E Ratio,{stock_info.get('pe_ratio', 'N/A')}
+Market Cap,{stock_info.get('market_cap', 'N/A')}
+Dividend Yield,{stock_info.get('dividend_yield', 'N/A')}
+Sector,{stock_info.get('sector', 'N/A')}
+Industry,{stock_info.get('industry', 'N/A')}
+Country,{stock_info.get('country', 'N/A')}
+Employees,{stock_info.get('employees', 'N/A')}
+"""
+                    
+                    st.download_button(
+                        label="Download Stock Analysis (CSV)",
+                        data=csv_data,
+                        file_name=f"{ticker}_analysis_{datetime.now().strftime('%Y%m%d')}.csv",
+                        mime="text/csv"
+                    )
+                    
+                else:
+                    st.error(f"Error analyzing {ticker}: {stock_info.get('error', 'Unknown error')}")
+                    
+            except Exception as e:
+                st.error(f"Analysis error: {str(e)}")
+    
     # Recent searches
+    st.markdown("---")
     st.subheader("🕒 Recent Searches")
     recent_searches = get_search_history(st.session_state.session_id, limit=5)
     
@@ -250,59 +384,26 @@ with tab2:
         for _, search in recent_searches.iterrows():
             with st.expander(f"'{search['search_query']}' - {search['created_at']}"):
                 results = search['results']
-                for result in results:
-                    st.write(f"• {result['ticker']}: {result['name']}")
+                if results:
+                    for result in results:
+                        col1, col2, col3 = st.columns([2, 5, 2])
+                        
+                        with col1:
+                            st.code(result['ticker'])
+                        
+                        with col2:
+                            st.write(result['name'])
+                        
+                        with col3:
+                            if st.button("📊 Analyze", key=f"recent_{result['ticker']}_{search['created_at']}"):
+                                st.session_state.analyze_ticker = result['ticker']
+                                st.rerun()
+                else:
+                    st.write("No results found")
     else:
         st.info("No recent searches.")
 
 with tab3:
-    st.header("📈 Individual Stock Analysis")
-    
-    # Ticker input
-    ticker_input = st.text_input("Enter ticker symbol:", placeholder="e.g., AAPL").upper()
-    
-    if st.button("Analyze Stock") and ticker_input:
-        with st.spinner(f"Analyzing {ticker_input}..."):
-            try:
-                stock_info = get_stock_info(ticker_input)
-                
-                if 'error' not in stock_info:
-                    st.success(f"Analysis for {stock_info['name']} ({stock_info['ticker']})")
-                    
-                    # Display stock information
-                    col1, col2, col3, col4 = st.columns(4)
-                    
-                    with col1:
-                        if stock_info['current_price']:
-                            st.metric("Current Price", f"${stock_info['current_price']:.2f}")
-                    
-                    with col2:
-                        if stock_info['pe_ratio']:
-                            st.metric("P/E Ratio", f"{stock_info['pe_ratio']:.1f}")
-                    
-                    with col3:
-                        if stock_info['market_cap']:
-                            st.metric("Market Cap", f"${stock_info['market_cap']:,.0f}")
-                    
-                    with col4:
-                        if stock_info['dividend_yield']:
-                            st.metric("Dividend Yield", f"{stock_info['dividend_yield']:.2%}")
-                    
-                    # Company details
-                    st.subheader("Company Information")
-                    info_df = pd.DataFrame([
-                        {"Field": "Sector", "Value": stock_info.get('sector', 'N/A')},
-                        {"Field": "Industry", "Value": stock_info.get('industry', 'N/A')},
-                    ])
-                    st.dataframe(info_df, hide_index=True, use_container_width=True)
-                    
-                else:
-                    st.error(f"Error analyzing {ticker_input}: {stock_info.get('error', 'Unknown error')}")
-                    
-            except Exception as e:
-                st.error(f"Analysis error: {str(e)}")
-
-with tab4:
     st.header("📋 Session History")
     
     # Session statistics
