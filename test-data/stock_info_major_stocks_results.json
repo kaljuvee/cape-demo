@@ -1,0 +1,67 @@
+{
+  "AAPL": {
+    "ticker": "AAPL",
+    "success": false,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "has_name": true,
+    "has_price": false,
+    "has_pe_ratio": false,
+    "timestamp": "2025-09-30T15:34:09.575089"
+  },
+  "MSFT": {
+    "ticker": "MSFT",
+    "success": false,
+    "data": {
+      "ticker": "MSFT",
+      "name": "MSFT",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/MSFT?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "has_name": true,
+    "has_price": false,
+    "has_pe_ratio": false,
+    "timestamp": "2025-09-30T15:34:09.647902"
+  },
+  "GOOGL": {
+    "ticker": "GOOGL",
+    "success": false,
+    "data": {
+      "ticker": "GOOGL",
+      "name": "GOOGL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/GOOGL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "has_name": true,
+    "has_price": false,
+    "has_pe_ratio": false,
+    "timestamp": "2025-09-30T15:34:09.707489"
+  },
+  "TSLA": {
+    "ticker": "TSLA",
+    "success": false,
+    "data": {
+      "ticker": "TSLA",
+      "name": "TSLA",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/TSLA?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "has_name": true,
+    "has_price": false,
+    "has_pe_ratio": false,
+    "timestamp": "2025-09-30T15:34:09.770621"
+  },
+  "AMZN": {
+    "ticker": "AMZN",
+    "success": false,
+    "data": {
+      "ticker": "AMZN",
+      "name": "AMZN",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AMZN?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "has_name": true,
+    "has_price": false,
+    "has_pe_ratio": false,
+    "timestamp": "2025-09-30T15:34:09.829058"
+  }
+}

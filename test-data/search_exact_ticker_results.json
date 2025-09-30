@@ -1,0 +1,67 @@
+{
+  "AAPL": {
+    "query": "AAPL",
+    "results": [
+      {
+        "ticker": "AAPL",
+        "name": "Apple Inc."
+      }
+    ],
+    "found": true,
+    "expected_name": "Apple Inc.",
+    "actual_name": "Apple Inc.",
+    "name_match": true
+  },
+  "MSFT": {
+    "query": "MSFT",
+    "results": [
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft Corporation"
+      }
+    ],
+    "found": true,
+    "expected_name": "Microsoft Corporation",
+    "actual_name": "Microsoft Corporation",
+    "name_match": true
+  },
+  "GOOGL": {
+    "query": "GOOGL",
+    "results": [
+      {
+        "ticker": "GOOGL",
+        "name": "Alphabet Inc."
+      }
+    ],
+    "found": true,
+    "expected_name": "Alphabet Inc.",
+    "actual_name": "Alphabet Inc.",
+    "name_match": true
+  },
+  "TSLA": {
+    "query": "TSLA",
+    "results": [
+      {
+        "ticker": "TSLA",
+        "name": "Tesla Inc."
+      }
+    ],
+    "found": true,
+    "expected_name": "Tesla, Inc.",
+    "actual_name": "Tesla Inc.",
+    "name_match": false
+  },
+  "ETSY": {
+    "query": "ETSY",
+    "results": [
+      {
+        "ticker": "ETSY",
+        "name": "Etsy Inc."
+      }
+    ],
+    "found": true,
+    "expected_name": "Etsy Inc.",
+    "actual_name": "Etsy Inc.",
+    "name_match": true
+  }
+}

@@ -1,0 +1,112 @@
+[
+  {
+    "call_number": 1,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.273219"
+  },
+  {
+    "call_number": 2,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.347946"
+  },
+  {
+    "call_number": 3,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.411832"
+  },
+  {
+    "call_number": 4,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.476902"
+  },
+  {
+    "call_number": 5,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.543010"
+  },
+  {
+    "call_number": 6,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.607698"
+  },
+  {
+    "call_number": 7,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.671381"
+  },
+  {
+    "call_number": 8,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.734589"
+  },
+  {
+    "call_number": 9,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.797309"
+  },
+  {
+    "call_number": 10,
+    "success": false,
+    "has_rate_limit_error": true,
+    "data": {
+      "ticker": "AAPL",
+      "name": "AAPL",
+      "error": "429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=summaryProfile%2CfinancialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&ssl=true"
+    },
+    "timestamp": "2025-09-30T15:34:10.859857"
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "aapl": {
+    "query": "aapl",
+    "results": [
+      {
+        "ticker": "AAPL",
+        "name": "Apple Inc."
+      }
+    ],
+    "found_tickers": [
+      "AAPL"
+    ],
+    "expected_ticker": "AAPL",
+    "case_insensitive_match": true
+  },
+  "msft": {
+    "query": "msft",
+    "results": [
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft Corporation"
+      }
+    ],
+    "found_tickers": [
+      "MSFT"
+    ],
+    "expected_ticker": "MSFT",
+    "case_insensitive_match": true
+  },
+  "microsoft": {
+    "query": "microsoft",
+    "results": [
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft Corporation"
+      }
+    ],
+    "found_tickers": [
+      "MSFT"
+    ],
+    "expected_ticker": "MSFT",
+    "case_insensitive_match": true
+  },
+  "APPLE": {
+    "query": "APPLE",
+    "results": [
+      {
+        "ticker": "AAPL",
+        "name": "Apple Inc."
+      }
+    ],
+    "found_tickers": [
+      "AAPL"
+    ],
+    "expected_ticker": "AAPL",
+    "case_insensitive_match": true
+  }
+}

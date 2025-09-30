@@ -1,0 +1,62 @@
+{
+  "Apple": {
+    "query": "Apple",
+    "results": [
+      {
+        "ticker": "AAPL",
+        "name": "Apple Inc."
+      }
+    ],
+    "found": true,
+    "expected_ticker": "AAPL",
+    "actual_ticker": "AAPL",
+    "ticker_match": true
+  },
+  "Microsoft": {
+    "query": "Microsoft",
+    "results": [
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft Corporation"
+      }
+    ],
+    "found": true,
+    "expected_ticker": "MSFT",
+    "actual_ticker": "MSFT",
+    "ticker_match": true
+  },
+  "Tesla": {
+    "query": "Tesla",
+    "results": [
+      {
+        "ticker": "TSLA",
+        "name": "Tesla Inc."
+      }
+    ],
+    "found": true,
+    "expected_ticker": "TSLA",
+    "actual_ticker": "TSLA",
+    "ticker_match": true
+  },
+  "Amazon": {
+    "query": "Amazon",
+    "results": [
+      {
+        "ticker": "AMZN",
+        "name": "Amazon.com Inc."
+      }
+    ],
+    "found": true,
+    "expected_ticker": "AMZN",
+    "actual_ticker": "AMZN",
+    "ticker_match": true
+  },
+  "Google": {
+    "query": "Google",
+    "results": [],
+    "found": false,
+    "expected_ticker": "GOOGL",
+    "actual_ticker": null,
+    "ticker_match": false
+  }
+}

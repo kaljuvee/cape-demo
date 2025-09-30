@@ -1,0 +1,94 @@
+{
+  "save_operations": [
+    {
+      "query": "AAPL",
+      "success": true,
+      "timestamp": "2025-09-30T15:34:11.850059"
+    },
+    {
+      "query": "Microsoft",
+      "success": true,
+      "timestamp": "2025-09-30T15:34:11.850930"
+    },
+    {
+      "query": "TSLA",
+      "success": true,
+      "timestamp": "2025-09-30T15:34:11.851669"
+    }
+  ],
+  "retrieve_operations": {
+    "success": true,
+    "history_count": 6,
+    "history": [
+      {
+        "search_query": "AAPL",
+        "results": [
+          {
+            "ticker": "AAPL",
+            "name": "Apple Inc."
+          }
+        ],
+        "created_at": "2025-09-30 19:34:11"
+      },
+      {
+        "search_query": "Microsoft",
+        "results": [
+          {
+            "ticker": "MSFT",
+            "name": "Microsoft Corporation"
+          }
+        ],
+        "created_at": "2025-09-30 19:34:11"
+      },
+      {
+        "search_query": "TSLA",
+        "results": [
+          {
+            "ticker": "TSLA",
+            "name": "Tesla, Inc."
+          }
+        ],
+        "created_at": "2025-09-30 19:34:11"
+      },
+      {
+        "search_query": "AAPL",
+        "results": [
+          {
+            "ticker": "AAPL",
+            "name": "Apple Inc."
+          }
+        ],
+        "created_at": "2025-09-30 19:33:55"
+      },
+      {
+        "search_query": "Microsoft",
+        "results": [
+          {
+            "ticker": "MSFT",
+            "name": "Microsoft Corporation"
+          }
+        ],
+        "created_at": "2025-09-30 19:33:55"
+      },
+      {
+        "search_query": "TSLA",
+        "results": [
+          {
+            "ticker": "TSLA",
+            "name": "Tesla, Inc."
+          }
+        ],
+        "created_at": "2025-09-30 19:33:55"
+      }
+    ],
+    "timestamp": "2025-09-30T15:34:11.865232"
+  },
+  "session_stats": {
+    "success": true,
+    "stats": {
+      "calculations_count": 0,
+      "searches_count": 6
+    },
+    "timestamp": "2025-09-30T15:34:11.865596"
+  }
+}

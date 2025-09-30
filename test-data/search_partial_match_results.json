@@ -1,0 +1,70 @@
+{
+  "Micro": {
+    "query": "Micro",
+    "results": [
+      {
+        "ticker": "MSFT",
+        "name": "Microsoft Corporation"
+      },
+      {
+        "ticker": "AMD",
+        "name": "Advanced Micro Devices Inc."
+      },
+      {
+        "ticker": "MU",
+        "name": "Micron Technology Inc."
+      },
+      {
+        "ticker": "MCHP",
+        "name": "Microchip Technology Inc."
+      }
+    ],
+    "found_tickers": [
+      "MSFT",
+      "AMD",
+      "MU",
+      "MCHP"
+    ],
+    "expected_tickers": [
+      "MSFT"
+    ],
+    "contains_expected": true
+  },
+  "Appl": {
+    "query": "Appl",
+    "results": [
+      {
+        "ticker": "AAPL",
+        "name": "Apple Inc."
+      },
+      {
+        "ticker": "AMAT",
+        "name": "Applied Materials Inc."
+      }
+    ],
+    "found_tickers": [
+      "AAPL",
+      "AMAT"
+    ],
+    "expected_tickers": [
+      "AAPL"
+    ],
+    "contains_expected": true
+  },
+  "Tes": {
+    "query": "Tes",
+    "results": [
+      {
+        "ticker": "TSLA",
+        "name": "Tesla Inc."
+      }
+    ],
+    "found_tickers": [
+      "TSLA"
+    ],
+    "expected_tickers": [
+      "TSLA"
+    ],
+    "contains_expected": true
+  }
+}
