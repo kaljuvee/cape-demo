@@ -133,6 +133,54 @@ def main():
                      f"${current_price} ÷ ${avg_real:.2f}")
     
     with tab2:
+        st.subheader("📊 How to Read the CAPE vs P/E Signal")
+        
+        st.markdown("""
+        ### Understanding CAPE vs P/E Comparison
+        
+        The relationship between CAPE and P/E ratios provides crucial insights into earnings cycles and future returns:
+        """)
+        
+        # Signal interpretation boxes
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            <div style="background-color: #ffebee; padding: 20px; border-radius: 10px; border-left: 5px solid #f44336;">
+            <h4>🔴 CAPE > P/E Signal</h4>
+            <p><strong>Current profits above trend</strong></p>
+            <ul>
+            <li><strong>Expectation:</strong> Mean-reversion in earnings; the "E" in P/E is likely to fall</li>
+            <li><strong>Risk:</strong> Unless the price falls in tandem, the stock is more expensive than the headline P/E suggests</li>
+            <li><strong>Historical Pattern:</strong> This regime is followed by <strong>below-average forward 5-10 year returns</strong></li>
+            </ul>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("""
+            <div style="background-color: #e8f5e8; padding: 20px; border-radius: 10px; border-left: 5px solid #4caf50;">
+            <h4>🟢 CAPE < P/E Signal</h4>
+            <p><strong>Current profits below trend</strong></p>
+            <ul>
+            <li><strong>Expectation:</strong> Recovery in earnings; the "E" in P/E is likely to rise</li>
+            <li><strong>Opportunity:</strong> The stock may be cheaper than the scary P/E implies</li>
+            <li><strong>Historical Pattern:</strong> This regime is followed by <strong>above-average forward 5-10 year returns</strong></li>
+            </ul>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        ### 📈 Investment Implications
+        
+        **Key Insight:** CAPE helps identify whether current earnings are temporarily high or low relative to the long-term trend.
+        
+        - **When CAPE > P/E:** Current earnings may be unsustainably high (earnings peak)
+        - **When CAPE < P/E:** Current earnings may be temporarily depressed (earnings trough)
+        
+        This framework helps investors avoid the trap of extrapolating current earnings indefinitely into the future.
+        """)
+        
         st.subheader("Market Index CAPE (S&P 500)")
         
         col1, col2 = st.columns(2)

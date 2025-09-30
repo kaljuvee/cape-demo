@@ -310,21 +310,45 @@ def main():
                             with col1:
                                 st.metric("CAPE Ratio", f"{cape_value:.1f}")
                                 
-                                # CAPE interpretation
-                                if cape_value < 15:
-                                    interpretation = "🟢 Potentially Undervalued"
-                                    color = "green"
-                                elif cape_value < 25:
-                                    interpretation = "🟡 Fairly Valued"
-                                    color = "orange"
-                                elif cape_value < 35:
-                                    interpretation = "🟠 Potentially Overvalued"
-                                    color = "orange"
+                                # CAPE vs P/E signal interpretation
+                                pe_ratio = stock_info.get('pe_ratio')
+                                if pe_ratio and pe_ratio > 0:
+                                    if cape_value > pe_ratio:
+                                        interpretation = "🔴 CAPE > P/E: Earnings Above Trend"
+                                        signal_detail = "Current profits above trend. Expect mean-reversion in earnings."
+                                        return_expectation = "Below-average forward 5-10 year returns expected"
+                                        color = "red"
+                                    else:
+                                        interpretation = "🟢 CAPE < P/E: Earnings Below Trend"
+                                        signal_detail = "Current profits below trend. Expect recovery in earnings."
+                                        return_expectation = "Above-average forward 5-10 year returns expected"
+                                        color = "green"
                                 else:
-                                    interpretation = "🔴 Highly Overvalued"
-                                    color = "red"
+                                    # Fallback to traditional CAPE interpretation when P/E unavailable
+                                    if cape_value < 15:
+                                        interpretation = "🟢 Potentially Undervalued"
+                                        signal_detail = "CAPE below historical average"
+                                        return_expectation = "Historically associated with better returns"
+                                        color = "green"
+                                    elif cape_value < 25:
+                                        interpretation = "🟡 Fairly Valued"
+                                        signal_detail = "CAPE near historical average"
+                                        return_expectation = "Market-average returns expected"
+                                        color = "orange"
+                                    elif cape_value < 35:
+                                        interpretation = "🟠 Potentially Overvalued"
+                                        signal_detail = "CAPE above historical average"
+                                        return_expectation = "Below-average returns possible"
+                                        color = "orange"
+                                    else:
+                                        interpretation = "🔴 Highly Overvalued"
+                                        signal_detail = "CAPE well above historical average"
+                                        return_expectation = "Poor forward returns likely"
+                                        color = "red"
                                 
-                                st.markdown(f"**Interpretation:** {interpretation}")
+                                st.markdown(f"**Signal:** {interpretation}")
+                                st.markdown(f"*{signal_detail}*")
+                                st.markdown(f"**Outlook:** {return_expectation}")
                             
                             with col2:
                                 # Historical context (placeholder data)
