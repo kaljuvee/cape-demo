@@ -11,6 +11,11 @@ import plotly.express as px
 from datetime import datetime
 import uuid
 import io
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Import utility functions
 from utils.yfinance_utils import (
@@ -20,15 +25,18 @@ from utils.yfinance_utils import (
     search_ticker,
     get_stock_info
 )
+from utils.polygon_utils import (
+    get_polygon_stock_info,
+    test_polygon_connection,
+    get_polygon_market_status
+)
 from utils.db_utils import (
     init_database,
-    create_session,
-    update_session_access,
+    save_search_history, 
+    get_search_history, 
+    get_session_stats,
     save_cape_calculation,
-    get_cape_calculations,
-    save_search_history,
-    get_search_history,
-    get_session_stats
+    get_cape_calculations
 )
 
 # Page configuration
@@ -42,167 +50,179 @@ st.set_page_config(
 # Initialize database
 init_database()
 
-# Session management
+# Initialize session state
 if 'session_id' not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
-    create_session(st.session_state.session_id)
 
-update_session_access(st.session_state.session_id)
-
-# Main header
-st.title("📈 CAPE Demo")
-st.subheader("Cyclically Adjusted PE Analysis")
-st.markdown("*Developed by Lohusalu Capital Management*")
-
-# Sidebar
-with st.sidebar:
-    st.header("Navigation")
+def main():
+    # Header
+    st.markdown("# 📈 CAPE Demo")
+    st.markdown("### Cyclically Adjusted PE Analysis")
+    st.markdown("*Developed by Lohusalu Capital Management*")
     
-    # Session stats
-    stats = get_session_stats(st.session_state.session_id)
-    if stats:
-        st.metric("Calculations", stats.get('calculations_count', 0))
-        st.metric("Searches", stats.get('searches_count', 0))
+    # Sidebar
+    with st.sidebar:
+        st.header("Navigation")
+        
+        # Session stats
+        try:
+            stats = get_session_stats(st.session_state.session_id)
+            st.metric("Calculations", stats.get('calculations_count', 0))
+            st.metric("Searches", stats.get('searches_count', 0))
+        except:
+            st.metric("Calculations", 0)
+            st.metric("Searches", 0)
+        
+        st.markdown("---")
+        
+        # Data Source Selection
+        st.subheader("📊 Data Source")
+        data_source = st.selectbox(
+            "Choose API for stock analysis:",
+            ["Yahoo Finance (yfinance)", "Polygon.io"],
+            index=1,  # Default to Polygon
+            help="Polygon.io typically has better rate limits and more reliable data"
+        )
+        
+        # API Status Check
+        if data_source == "Polygon.io":
+            if st.button("🔍 Test Polygon API"):
+                with st.spinner("Testing Polygon.io connection..."):
+                    test_result = test_polygon_connection()
+                    if test_result['success']:
+                        st.success("✅ Polygon API Connected")
+                        st.json({
+                            "Status": "Connected",
+                            "Response Time": f"{test_result['response_time_ms']:.0f}ms",
+                            "API Key": "Valid" if test_result['api_key_valid'] else "Invalid"
+                        })
+                    else:
+                        st.error("❌ Polygon API Error")
+                        st.json(test_result)
+        
+        st.markdown("---")
+        
+        # Quick Actions
+        st.subheader("Quick Actions")
+        
+        if st.button("🔄 Refresh Data"):
+            st.cache_data.clear()
+            st.success("Cache cleared!")
+        
+        if st.button("📊 Calculate CAPE"):
+            st.session_state.show_cape = True
     
-    st.markdown("---")
+    # Main content tabs
+    tab1, tab2, tab3 = st.tabs(["📊 CAPE Analysis", "🔍 Stock Analysis", "📋 Session History"])
     
-    # Quick actions
-    st.header("Quick Actions")
-    if st.button("🔄 Refresh Data"):
-        st.cache_data.clear()
-        st.rerun()
-    
-    if st.button("📊 Calculate CAPE"):
-        st.session_state.show_cape_calc = True
-
-# Main content area - Merged tabs
-tab1, tab2, tab3 = st.tabs(["📊 CAPE Analysis", "🔍 Stock Analysis", "📋 Session History"])
-
-with tab1:
-    st.header("CAPE Analysis")
-    
-    # Methodology explanation
-    with st.expander("📖 Methodology & Caveats"):
-        st.markdown("""
-        ### Equal-Weight CAPE Calculation
+    with tab1:
+        st.header("📊 CAPE Analysis")
         
-        This application calculates CAPE (Cyclically Adjusted Price-to-Earnings) ratios using both traditional cap-weighted 
-        and equal-weighted methodologies.
+        # Methodology section
+        with st.expander("📖 Methodology & Caveats"):
+            st.markdown("""
+            ### Equal-Weight CAPE Calculation
+            
+            This application calculates CAPE (Cyclically Adjusted Price-to-Earnings) ratios using both traditional cap-weighted and equal-weighted methodologies.
+            
+            **Process:**
+            1. Download S&P 500 constituent data from Wikipedia
+            2. Fetch historical price and earnings data via yfinance
+            3. Calculate 10-year real earnings per share for each stock
+            4. Compute individual stock CAPE ratios
+            5. Equal-weight the ratios across all constituents
+            6. Compare to traditional cap-weighted CAPE from Shiller data
+            
+            ### Important Caveats
+            
+            - **Data Limitations**: yfinance earnings data is trailing twelve months and not CPI-adjusted; for full rigor you would download company 10-K EPS and CPI-deflate yourself.
+            
+            - **Survivorship Bias**: The analysis uses today's 500 names for the entire history. To be perfect you need the historical membership (S&P provides this commercially, or you can scrape it from Siblis Research).
+            
+            - **Rebalancing Frequency**: The equal-weight index is rebalanced quarterly; this analysis uses monthly data. Switch to quarterly if you want to match the S&P 500 Equal Weight Index methodology exactly.
+            """)
         
-        **Process:**
-        1. Download S&P 500 constituent data from Wikipedia
-        2. Fetch historical price and earnings data via yfinance
-        3. Calculate 10-year real earnings per share for each stock
-        4. Compute individual stock CAPE ratios
-        5. Equal-weight the ratios across all constituents
-        6. Compare to traditional cap-weighted CAPE from Shiller data
-        
-        ### Important Caveats
-        
-        - **Data Limitations**: yfinance earnings data is trailing twelve months and not CPI-adjusted; 
-          for full rigor you would download company 10-K EPS and CPI-deflate yourself.
-        
-        - **Survivorship Bias**: The analysis uses today's 500 names for the entire history. 
-          To be perfect you need the historical membership (S&P provides this commercially, 
-          or you can scrape it from Siblis Research).
-        
-        - **Rebalancing Frequency**: The equal-weight index is rebalanced quarterly; this analysis uses monthly data. 
-          Switch to quarterly if you want to match the S&P 500 Equal Weight Index methodology exactly.
-        """)
-    
-    # CAPE calculation section
-    if st.button("Calculate CAPE Comparison", type="primary"):
-        with st.spinner("Calculating CAPE ratios... This may take a few minutes."):
-            try:
-                comparison_data = calculate_cape_comparison()
-                
-                if comparison_data is not None and not comparison_data.empty:
-                    st.success("CAPE calculation completed!")
+        # CAPE calculation button
+        if st.button("Calculate CAPE Comparison"):
+            with st.spinner("Calculating CAPE ratios... This may take several minutes."):
+                try:
+                    cape_data = calculate_cape_comparison()
                     
-                    # Store in session state
-                    st.session_state.cape_data = comparison_data
-                    
-                    # Save to database
-                    for date, row in comparison_data.iterrows():
-                        if not pd.isna(row.get('Equal_Weight_CAPE')):
-                            save_cape_calculation(
-                                st.session_state.session_id,
-                                'equal_weight',
-                                'SPY',
-                                date.strftime('%Y-%m-%d'),
-                                row['Equal_Weight_CAPE']
-                            )
-                    
-                    # Display results
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.metric(
-                            "Latest Cap-Weight CAPE", 
-                            f"{comparison_data['Cap_Weight_CAPE_Shiller'].iloc[-1]:.1f}"
-                        )
-                    
-                    with col2:
-                        if 'Equal_Weight_CAPE' in comparison_data.columns:
-                            st.metric(
-                                "Latest Equal-Weight CAPE", 
-                                f"{comparison_data['Equal_Weight_CAPE'].iloc[-1]:.1f}"
-                            )
-                    
-                    # Plot comparison
-                    fig = go.Figure()
-                    
-                    fig.add_trace(go.Scatter(
-                        x=comparison_data.index,
-                        y=comparison_data['Cap_Weight_CAPE_Shiller'],
-                        mode='lines',
-                        name='Cap-Weight CAPE (Shiller)',
-                        line=dict(color='blue')
-                    ))
-                    
-                    if 'Equal_Weight_CAPE' in comparison_data.columns:
+                    if cape_data is not None and not cape_data.empty:
+                        # Save calculation to database
+                        save_cape_calculation(st.session_state.session_id, "CAPE Comparison", "SPX", datetime.now().date(), cape_data['cape_ew'].iloc[-1], cape_data.to_dict())
+                        
+                        st.success("CAPE calculation completed!")
+                        
+                        # Display results
+                        st.subheader("📊 CAPE Comparison Results")
+                        
+                        # Create visualization
+                        fig = go.Figure()
+                        
                         fig.add_trace(go.Scatter(
-                            x=comparison_data.index,
-                            y=comparison_data['Equal_Weight_CAPE'],
+                            x=cape_data.index,
+                            y=cape_data['cape_cw'],
                             mode='lines',
-                            name='Equal-Weight CAPE',
-                            line=dict(color='red')
+                            name='Cap-Weighted CAPE',
+                            line=dict(color='blue', width=2)
                         ))
-                    
-                    fig.update_layout(
-                        title="S&P 500 CAPE: Cap-Weight vs Equal-Weight",
-                        xaxis_title="Date",
-                        yaxis_title="CAPE Ratio",
-                        hovermode='x unified'
-                    )
-                    
-                    st.plotly_chart(fig, use_container_width=True)
-                    
-                    # Download section
-                    st.subheader("📥 Download Data")
-                    
-                    # Convert to CSV
-                    csv_buffer = io.StringIO()
-                    comparison_data.to_csv(csv_buffer)
-                    csv_data = csv_buffer.getvalue()
-                    
-                    st.download_button(
-                        label="Download CAPE Data (CSV)",
-                        data=csv_data,
-                        file_name=f"cape_comparison_{datetime.now().strftime('%Y%m%d')}.csv",
-                        mime="text/csv"
-                    )
-                    
-                else:
-                    st.error("Failed to calculate CAPE data. Please try again.")
-                    
-            except Exception as e:
-                st.error(f"Error calculating CAPE: {str(e)}")
-    
-    # Display cached data if available
-    if 'cape_data' in st.session_state:
-        st.subheader("📊 Current CAPE Data")
-        st.dataframe(st.session_state.cape_data.tail(10), use_container_width=True)
+                        
+                        fig.add_trace(go.Scatter(
+                            x=cape_data.index,
+                            y=cape_data['cape_ew'],
+                            mode='lines',
+                            name='Equal-Weighted CAPE',
+                            line=dict(color='red', width=2)
+                        ))
+                        
+                        fig.update_layout(
+                            title="CAPE Ratio Comparison: Cap-Weighted vs Equal-Weighted",
+                            xaxis_title="Date",
+                            yaxis_title="CAPE Ratio",
+                            hovermode='x unified',
+                            template='plotly_white'
+                        )
+                        
+                        st.plotly_chart(fig, use_container_width=True)
+                        
+                        # Summary statistics
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.subheader("Cap-Weighted CAPE")
+                            st.metric("Current", f"{cape_data['cape_cw'].iloc[-1]:.1f}")
+                            st.metric("Average", f"{cape_data['cape_cw'].mean():.1f}")
+                            st.metric("Std Dev", f"{cape_data['cape_cw'].std():.1f}")
+                        
+                        with col2:
+                            st.subheader("Equal-Weighted CAPE")
+                            st.metric("Current", f"{cape_data['cape_ew'].iloc[-1]:.1f}")
+                            st.metric("Average", f"{cape_data['cape_ew'].mean():.1f}")
+                            st.metric("Std Dev", f"{cape_data['cape_ew'].std():.1f}")
+                        
+                        # Download option
+                        csv_data = cape_data.to_csv()
+                        st.download_button(
+                            label="Download CAPE Data (CSV)",
+                            data=csv_data,
+                            file_name=f"cape_comparison_{datetime.now().strftime('%Y%m%d')}.csv",
+                            mime="text/csv"
+                        )
+                        
+                        # Store in session state for later use
+                        st.session_state.cape_data = cape_data
+                        
+                    else:
+                        st.error("Failed to calculate CAPE data. Please check the data sources and try again.")
+                        
+                except Exception as e:
+                    st.error(f"Error calculating CAPE: {str(e)}")
+        
+        # Display cached CAPE data if available
+        if 'cape_data' in st.session_state:
+            st.subheader("📊 Current CAPE Data")
+            st.dataframe(st.session_state.cape_data.tail(10), use_container_width=True)
 
     with tab2:
         st.header("🔍 Stock Analysis")
@@ -270,7 +290,11 @@ with tab1:
             ticker = search_query.upper().strip()
             with st.spinner(f"Analyzing {ticker}..."):
                 try:
-                    stock_info = get_stock_info(ticker)
+                    # Choose data source based on sidebar selection
+                    if data_source == "Polygon.io":
+                        stock_info = get_polygon_stock_info(ticker)
+                    else:
+                        stock_info = get_stock_info(ticker)
                     
                     if 'error' not in stock_info:
                         st.success(f"Analysis for {stock_info['name']} ({stock_info['ticker']})")
@@ -279,38 +303,61 @@ with tab1:
                         col1, col2, col3, col4 = st.columns(4)
                         
                         with col1:
-                            if stock_info['current_price']:
+                            if stock_info.get('current_price'):
                                 st.metric("Current Price", f"${stock_info['current_price']:.2f}")
                             else:
                                 st.metric("Current Price", "N/A")
                         
                         with col2:
-                            if stock_info['pe_ratio']:
+                            if stock_info.get('pe_ratio'):
                                 st.metric("P/E Ratio", f"{stock_info['pe_ratio']:.1f}")
                             else:
                                 st.metric("P/E Ratio", "N/A")
                         
                         with col3:
-                            if stock_info['market_cap']:
+                            if stock_info.get('market_cap'):
                                 # Format market cap nicely
                                 market_cap = stock_info['market_cap']
-                                if market_cap > 1e12:
+                                if market_cap and market_cap > 1e12:
                                     cap_display = f"${market_cap/1e12:.2f}T"
-                                elif market_cap > 1e9:
+                                elif market_cap and market_cap > 1e9:
                                     cap_display = f"${market_cap/1e9:.2f}B"
-                                elif market_cap > 1e6:
+                                elif market_cap and market_cap > 1e6:
                                     cap_display = f"${market_cap/1e6:.2f}M"
-                                else:
+                                elif market_cap:
                                     cap_display = f"${market_cap:,.0f}"
+                                else:
+                                    cap_display = "N/A"
                                 st.metric("Market Cap", cap_display)
                             else:
                                 st.metric("Market Cap", "N/A")
                         
                         with col4:
-                            if stock_info['dividend_yield']:
-                                st.metric("Dividend Yield", f"{stock_info['dividend_yield']:.2%}")
+                            if stock_info.get('volume'):
+                                volume = stock_info['volume']
+                                if volume > 1e6:
+                                    vol_display = f"{volume/1e6:.1f}M"
+                                elif volume > 1e3:
+                                    vol_display = f"{volume/1e3:.1f}K"
+                                else:
+                                    vol_display = f"{volume:,.0f}"
+                                st.metric("Volume", vol_display)
                             else:
-                                st.metric("Dividend Yield", "N/A")
+                                st.metric("Volume", "N/A")
+                        
+                        # Additional metrics for Polygon data
+                        if data_source == "Polygon.io" and stock_info.get('open_price'):
+                            st.subheader("📈 Price Information")
+                            col1, col2, col3, col4 = st.columns(4)
+                            
+                            with col1:
+                                st.metric("Open", f"${stock_info.get('open_price', 0):.2f}")
+                            with col2:
+                                st.metric("High", f"${stock_info.get('high_price', 0):.2f}")
+                            with col3:
+                                st.metric("Low", f"${stock_info.get('low_price', 0):.2f}")
+                            with col4:
+                                st.metric("Exchange", stock_info.get('exchange', 'N/A'))
                         
                         # Company details
                         st.subheader("Company Information")
@@ -322,17 +369,29 @@ with tab1:
                             info_data.append({"Field": "Industry", "Value": stock_info['industry']})
                         if stock_info.get('country'):
                             info_data.append({"Field": "Country", "Value": stock_info['country']})
+                        if stock_info.get('currency'):
+                            info_data.append({"Field": "Currency", "Value": stock_info['currency']})
                         if stock_info.get('employees'):
                             info_data.append({"Field": "Employees", "Value": f"{stock_info['employees']:,}"})
+                        if stock_info.get('data_source'):
+                            info_data.append({"Field": "Data Source", "Value": stock_info['data_source']})
                         
                         if info_data:
                             info_df = pd.DataFrame(info_data)
                             st.dataframe(info_df, hide_index=True, use_container_width=True)
                         
-                        # Business summary
+                        # Business summary or description
                         if stock_info.get('business_summary'):
                             st.subheader("Business Summary")
                             st.write(stock_info['business_summary'])
+                        elif stock_info.get('description'):
+                            st.subheader("Company Description")
+                            st.write(stock_info['description'])
+                        
+                        # Website link
+                        if stock_info.get('website'):
+                            st.subheader("🌐 Company Website")
+                            st.link_button("Visit Website", stock_info['website'])
                         
                         # Download analysis
                         st.subheader("📥 Download Analysis")
@@ -342,13 +401,21 @@ with tab1:
 Ticker,{stock_info['ticker']}
 Company Name,{stock_info['name']}
 Current Price,{stock_info.get('current_price', 'N/A')}
+Open Price,{stock_info.get('open_price', 'N/A')}
+High Price,{stock_info.get('high_price', 'N/A')}
+Low Price,{stock_info.get('low_price', 'N/A')}
+Volume,{stock_info.get('volume', 'N/A')}
 P/E Ratio,{stock_info.get('pe_ratio', 'N/A')}
 Market Cap,{stock_info.get('market_cap', 'N/A')}
 Dividend Yield,{stock_info.get('dividend_yield', 'N/A')}
 Sector,{stock_info.get('sector', 'N/A')}
 Industry,{stock_info.get('industry', 'N/A')}
 Country,{stock_info.get('country', 'N/A')}
+Currency,{stock_info.get('currency', 'N/A')}
+Exchange,{stock_info.get('exchange', 'N/A')}
 Employees,{stock_info.get('employees', 'N/A')}
+Data Source,{stock_info.get('data_source', 'N/A')}
+Last Updated,{stock_info.get('last_updated', 'N/A')}
 """
                         
                         st.download_button(
@@ -361,93 +428,81 @@ Employees,{stock_info.get('employees', 'N/A')}
                     else:
                         st.error(f"Error analyzing {ticker}: {stock_info.get('error', 'Unknown error')}")
                         
+                        # Show API status if using Polygon
+                        if data_source == "Polygon.io":
+                            st.info("💡 Tip: Try the 'Test Polygon API' button in the sidebar to check connection status.")
+                        
                 except Exception as e:
                     st.error(f"Analysis error: {str(e)}")
     
     # Recent searches
     st.markdown("---")
-    st.subheader("🕒 Recent Searches")
-    recent_searches = get_search_history(st.session_state.session_id, limit=5)
     
-    if not recent_searches.empty:
-        for _, search in recent_searches.iterrows():
-            with st.expander(f"'{search['search_query']}' - {search['created_at']}"):
-                results = search['results']
-                if results:
-                    for result in results:
-                        col1, col2, col3 = st.columns([2, 5, 2])
-                        
-                        with col1:
-                            st.code(result['ticker'])
-                        
-                        with col2:
-                            st.write(result['name'])
-                        
-                        with col3:
-                            if st.button("📊 Analyze", key=f"recent_{result['ticker']}_{search['created_at']}"):
-                                st.session_state.analyze_ticker = result['ticker']
-                                st.rerun()
-                else:
-                    st.write("No results found")
-    else:
-        st.info("No recent searches.")
-
-with tab3:
-    st.header("📋 Session History")
-    
-    # Session statistics
-    stats = get_session_stats(st.session_state.session_id)
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Total Calculations", stats.get('calculations_count', 0))
-    with col2:
-        st.metric("Total Searches", stats.get('searches_count', 0))
-    with col3:
-        st.metric("Session ID", st.session_state.session_id[:8] + "...")
-    
-    # CAPE calculations history
-    st.subheader("🧮 CAPE Calculations")
-    cape_history = get_cape_calculations(st.session_state.session_id)
-    
-    if not cape_history.empty:
-        st.dataframe(cape_history, use_container_width=True)
+    with tab3:
+        st.header("📋 Session History")
         
-        # Download calculations
-        csv_buffer = io.StringIO()
-        cape_history.to_csv(csv_buffer, index=False)
-        csv_data = csv_buffer.getvalue()
+        # Search history
+        st.subheader("🔍 Recent Searches")
+        try:
+            search_history = get_search_history(st.session_state.session_id)
+            
+            if not search_history.empty:
+                # Display search history
+                for _, row in search_history.iterrows():
+                    with st.expander(f"'{row['search_query']}' - {row['created_at']}"):
+                        results = row['results']
+                        if isinstance(results, list):
+                            for result in results:
+                                col1, col2, col3 = st.columns([2, 5, 2])
+                                with col1:
+                                    st.code(result.get('ticker', 'N/A'))
+                                with col2:
+                                    st.write(result.get('name', 'N/A'))
+                                with col3:
+                                    if st.button("📊 Analyze", key=f"history_analyze_{result.get('ticker', 'unknown')}_{row.name}"):
+                                        st.session_state.analyze_ticker = result.get('ticker', '')
+                                        st.rerun()
+                
+                # Download search history
+                csv_data = search_history.to_csv(index=False)
+                st.download_button(
+                    label="Download Search History (CSV)",
+                    data=csv_data,
+                    file_name=f"search_history_{datetime.now().strftime('%Y%m%d')}.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.info("No recent searches.")
+                
+        except Exception as e:
+            st.error(f"Error loading search history: {str(e)}")
         
-        st.download_button(
-            label="Download Calculations (CSV)",
-            data=csv_data,
-            file_name=f"cape_calculations_{datetime.now().strftime('%Y%m%d')}.csv",
-            mime="text/csv"
-        )
-    else:
-        st.info("No CAPE calculations in this session yet.")
-    
-    # Search history
-    st.subheader("🔍 Search History")
-    search_history = get_search_history(st.session_state.session_id)
-    
-    if not search_history.empty:
-        for _, search in search_history.iterrows():
-            with st.expander(f"'{search['search_query']}' - {search['created_at']}"):
-                results = search['results']
-                if results:
-                    results_df = pd.DataFrame(results)
-                    st.dataframe(results_df, hide_index=True, use_container_width=True)
-                else:
-                    st.write("No results")
-    else:
-        st.info("No search history in this session yet.")
+        # Calculation history
+        st.subheader("📊 Recent Calculations")
+        try:
+            calc_history = get_cape_calculations(st.session_state.session_id)
+            
+            if not calc_history.empty:
+                st.dataframe(calc_history, use_container_width=True)
+                
+                # Download calculation history
+                csv_data = calc_history.to_csv(index=False)
+                st.download_button(
+                    label="Download Calculation History (CSV)",
+                    data=csv_data,
+                    file_name=f"calculation_history_{datetime.now().strftime('%Y%m%d')}.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.info("No recent calculations.")
+                
+        except Exception as e:
+            st.error(f"Error loading calculation history: {str(e)}")
 
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style='text-align: center; color: #666;'>
-    <p>CAPE Demo v1.0 | Developed by Lohusalu Capital Management</p>
-    <p>Data sources: Yahoo Finance, Robert Shiller (Yale Economics), Wikipedia</p>
-</div>
-""", unsafe_allow_html=True)
+    # Footer
+    st.markdown("---")
+    st.markdown("**CAPE Demo v1.0** | Developed by Lohusalu Capital Management")
+    st.markdown("Data sources: Yahoo Finance, Polygon.io, Robert Shiller (Yale Economics), Wikipedia")
+
+if __name__ == "__main__":
+    main()

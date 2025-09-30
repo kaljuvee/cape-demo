@@ -6,3 +6,5 @@ matplotlib
 plotly
 requests
 openpyxl
+
+python-dotenv
