@@ -208,20 +208,18 @@ def main():
                     
                     st.success(f"Found {len(results)} results:")
                     
-                    # Display results with analyze buttons
+                    # Display results (click to select for analysis)
                     for result in results:
-                        col1, col2, col3 = st.columns([2, 5, 2])
+                        col1, col2 = st.columns([2, 6])
                         
                         with col1:
-                            st.code(result['ticker'])
+                            if st.button(result['ticker'], key=f"select_{result['ticker']}", 
+                                       help="Click to select this ticker for analysis"):
+                                st.session_state.analyze_ticker = result['ticker']
+                                st.rerun()
                         
                         with col2:
                             st.write(result['name'])
-                        
-                        with col3:
-                            if st.button("📊 Analyze", key=f"search_analyze_{result['ticker']}"):
-                                st.session_state.analyze_ticker = result['ticker']
-                                st.rerun()
                 else:
                     st.warning("No results found. Try a different search term.")
                     
