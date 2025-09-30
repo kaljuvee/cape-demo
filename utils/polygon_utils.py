@@ -7,10 +7,14 @@ import os
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables (optional)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not available, use environment variables directly
+    pass
 
 POLYGON_API_KEY = os.getenv('POLYGON_API_KEY', '3lKo1IgQ3hXMjMCkmbQACTJySZHkfld7')
 POLYGON_BASE_URL = 'https://api.polygon.io'

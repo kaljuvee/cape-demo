@@ -12,10 +12,14 @@ from datetime import datetime
 import uuid
 import io
 import os
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables (optional)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not available, use environment variables directly
+    pass
 
 # Import utility functions
 from utils.yfinance_utils import (
