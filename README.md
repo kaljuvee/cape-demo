@@ -1,6 +1,6 @@
 # CAPE Demo - Cyclically Adjusted PE Analysis
 
-A Streamlit application for analyzing CAPE (Cyclically Adjusted Price-to-Earnings) ratios for S&P 500 stocks, developed by Lohusalu Capital Management.
+A Streamlit application for analyzing CAPE (Cyclically Adjusted Price-to-Earnings) ratios for S&P 500 stocks, developed by [Julian Kaljuvee](https://kaljuvee.github.io).
 
 ## Features
 
