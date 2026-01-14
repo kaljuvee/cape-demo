@@ -1,8 +1,4 @@
-"""
-CAPE Methodology and Data Sources
-Explains how CAPE is calculated and data sources used
-Developed by Lohusalu Capital Management
-"""
+"""\nCAPE Methodology and Data Sources\nExplains how CAPE is calculated and data sources used\nDeveloped by [Julian Kaljuvee](https://kaljuvee.github.io)\n"""
 
 import streamlit as st
 import pandas as pd
@@ -12,7 +8,7 @@ from datetime import datetime
 
 # Page configuration
 st.set_page_config(
-    page_title="CAPE Methodology - Lohusalu Capital",
+    page_title="CAPE Methodology - Julian Kaljuvee",
     page_icon="📚",
     layout="wide"
 )
@@ -21,7 +17,7 @@ def main():
     # Header
     st.markdown("# 📚 CAPE Methodology & Data Sources")
     st.markdown("### Understanding Cyclically Adjusted Price-to-Earnings Ratios")
-    st.markdown("*Developed by Lohusalu Capital Management*")
+    st.markdown("*Developed by [Julian Kaljuvee](https://kaljuvee.github.io)*")
     
     # Introduction
     st.markdown("---")
@@ -455,7 +451,7 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("**CAPE Demo v1.0** | Developed by Lohusalu Capital Management")
+    st.markdown("**CAPE Demo v1.0** | Developed by [Julian Kaljuvee](https://kaljuvee.github.io)")
     st.markdown("📚 **References:** Shiller, R. J. (2000). *Irrational Exuberance*. Princeton University Press.")
     st.markdown("🔗 **Official Shiller Data:** [Yale Economics](http://www.econ.yale.edu/~shiller/data.htm)")
 

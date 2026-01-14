@@ -1,6 +1,4 @@
-"""
-YFinance utility functions for CAPE calculation
-Developed by Lohusalu Capital Management
+"""YFinance utility functions for CAPE calculation\nDeveloped by [Julian Kaljuvee](https://kaljuvee.github.io)
 """
 
 import yfinance as yf

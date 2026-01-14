@@ -1,8 +1,4 @@
-"""
-CAPE Demo - Stock Analysis with CAPE Calculations
-Main Application - Stock Analysis Focus
-Developed by Lohusalu Capital Management
-"""
+"""\nCAPE Demo - Stock Analysis with CAPE Calculations\nMain Application - Stock Analysis Focus\nDeveloped by [Julian Kaljuvee](https://kaljuvee.github.io)\n"""
 
 import streamlit as st
 import pandas as pd
@@ -100,7 +96,7 @@ def main():
     # Header
     st.markdown("# 📈 CAPE Demo - Stock Analysis")
     st.markdown("### Individual Stock CAPE Analysis")
-    st.markdown("*Developed by Lohusalu Capital Management*")
+    st.markdown("*Developed by [Julian Kaljuvee](https://kaljuvee.github.io)*")
     
     # Sidebar
     with st.sidebar:
@@ -552,7 +548,7 @@ CAPE Note,{cape_error if cape_error else 'Standard calculation'}
 
     # Footer
     st.markdown("---")
-    st.markdown("**CAPE Demo v1.0** | Developed by Lohusalu Capital Management")
+    st.markdown("**CAPE Demo v1.0** | Developed by [Julian Kaljuvee](https://kaljuvee.github.io)")
     st.markdown("Data sources: Yahoo Finance, Polygon.io, Robert Shiller (Yale Economics)")
     st.markdown("💡 **Tip:** Visit the Methodology page to learn how CAPE is calculated and understand data sources.")
 

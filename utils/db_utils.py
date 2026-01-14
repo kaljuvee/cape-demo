@@ -1,7 +1,5 @@
 """
-Database utility functions for session data storage
-Developed by Lohusalu Capital Management
-"""
+Database utility functions for session data storage\nDeveloped by [Julian Kaljuvee](https://kaljuvee.github.io)"""
 
 import sqlite3
 import pandas as pd

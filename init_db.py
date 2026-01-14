@@ -1,8 +1,4 @@
-"""
-Database initialization script
-Run this to set up the SQLite database for the CAPE Demo application
-Developed by Lohusalu Capital Management
-"""
+"""\nDatabase initialization script\nRun this to set up the SQLite database for the CAPE Demo application\nDeveloped by [Julian Kaljuvee](https://kaljuvee.github.io)\n"""
 
 import os
 import sys
